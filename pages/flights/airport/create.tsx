@@ -13,11 +13,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import flightService from "@/services/flightService"
-import userService from "@/services/userService"
-import { useEffect } from "react"
 import router from "next/router"
+import { withAuthGuard } from "@/hoc/guard"
 
 const formSchema = z.object({
     code: z.string().min(3).max(4),
@@ -26,23 +25,8 @@ const formSchema = z.object({
     country: z.string().min(2).max(50),
 })
 
-export default function AirportForm() {
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ["user", "me"],
-        queryFn: userService.fetchUser,
-        staleTime: 5 * 60 * 1000,
-        retry: 2,
-    });
-
-    useEffect(() => {
-        if (!isLoading && !isError && data) {
-            if(data.user_type !== "Staff"){
-                router.push("/")
-            }
-        }
-    }, [isLoading, isError, data]);
-
-    
+function AirportForm() {
+    const queryClient = useQueryClient();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -55,8 +39,9 @@ export default function AirportForm() {
 
     const mutation = useMutation({
         mutationFn: flightService.createAirport,
-        onSuccess: (response) => {
-            console.log(response)
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["airports"] });
+            router.push("list")
         },
     })
 
@@ -126,3 +111,5 @@ export default function AirportForm() {
         </Card>
     )
 }
+
+export default withAuthGuard(AirportForm, "Staff")
