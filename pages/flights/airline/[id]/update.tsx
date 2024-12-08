@@ -14,17 +14,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import airportService from "@/services/airportService";
+import airlineService from "@/services/airlineService";
 import { withAuthGuard } from "@/hoc/guard";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 
 const formSchema = z.object({
-  code: z.string().min(3).max(4),
-  name: z.string().min(2).max(50),
-  city: z.string().min(2).max(50),
-  country: z.string().min(2).max(50),
-});
+    IATA_code: z.string().max(3),
+    name: z.string().min(2).max(50),
+})
 
 function UpdateForm() {
     const router = useRouter();
@@ -33,38 +31,34 @@ function UpdateForm() {
 
 
     const { data, isLoading } = useQuery({
-        queryKey: ["airport", id],
-        queryFn: () => airportService.getAirportById(id as string),
+        queryKey: ["airline", id],
+        queryFn: () => airlineService.getAirlineById(id as string),
         enabled: !!id,
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-        code: "",
-        name: "",
-        city: "",
-        country: "",
+            IATA_code: "",
+            name: "",
         },
     });
 
     useEffect(() => {
         if (data) {
         form.reset({
-            code: data.code,
+            IATA_code: data.IATA_code,
             name: data.name,
-            city: data.city,
-            country: data.country,
         });
         }
     }, [data, form]);
 
     const mutation = useMutation({
         mutationFn: (updatedData: z.infer<typeof formSchema>) =>
-            airportService.updateAirport(id as string, updatedData),
+            airlineService.updateAirline(id as string, updatedData),
         onSuccess: (response) => {
-            queryClient.invalidateQueries({ queryKey: ["airports"] });
-            router.push("/flights/airport/list");
+            queryClient.invalidateQueries({ queryKey: ["airline"] });
+            router.push("/flights/airline/list");
         },
     });
 
@@ -74,7 +68,7 @@ function UpdateForm() {
 
     return (
         <Card className="max-w-2xl w-[96%] mx-auto p-8 rounded-md mt-8">
-        <h1 className="text-xl font-bold mb-4">Update Airport</h1>
+        <h1 className="text-xl font-bold mb-4">Update Airline</h1>
         {isLoading ? (
             <p>Loading...</p>
         ) : (
@@ -82,12 +76,12 @@ function UpdateForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField
                 control={form.control}
-                name="code"
+                name="IATA_code"
                 render={({ field }) => (
                     <FormItem>
                     <FormLabel>Code</FormLabel>
                     <FormControl>
-                        <Input placeholder="PRN" {...field} />
+                        <Input {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -101,35 +95,8 @@ function UpdateForm() {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                         <Input
-                        placeholder="Prishtina International Airport"
                         {...field}
                         />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                        <Input placeholder="Prishtina" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                        <Input placeholder="Kosove" {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>

@@ -1,31 +1,31 @@
 import Axios from "@/config/axiosInstance"
 
-const flightService = {
-    createAirport: async (data: Object) => {
-        const request = await Axios.post("/flights/airport/", data)
+const flightsService = {
+    createFlight: async (data: Object) => {
+        const request = await Axios.post("/flights/", data)
         return request.data
     },
 
-    getAirports: async () => {
-        const request = await Axios.get("/flights/airport/")
+    getFlights: async () => {
+        const request = await Axios.get("/flights/")
         return request.data
     },
 
-    getAirportById: async (id: string) => {
-        const request = await Axios.get("/flights/airport/" + id)
+    getFlightById: async (id: string) => {
+        const request = await Axios.get("/flights/" + id)
         return request.data
     },
 
-    updateAirport: async (id: string, data: Object) => {
-        const request = await Axios.put(`/flights/airport/${id}/`, data)
+    updateFlight: async (id: string, data: Object) => {
+        const request = await Axios.put(`/flights/${id}/`, data)
         return request.data
     },
 
-    deleteAirport: async (id: string) => {
-        const request = await Axios.delete(`/flights/airport/${id}/`)
+    deleteFlight: async (id: string) => {
+        const request = await Axios.delete(`/flights/${id}/`)
         return request.data
     }
 }
 
 
-export default flightService
+export default flightsService

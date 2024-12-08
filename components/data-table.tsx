@@ -1,27 +1,3 @@
-type Airport = {
-    code: string;
-    name: string;
-    city: string;
-    country: string;
-};
-  
-
-const columns: ColumnDef<Airport>[] = [
-    {
-      accessorKey: "status",
-      header: "Status",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "amount",
-      header: "Amount",
-    },
-]
-
-
 import {
     ColumnDef,
     flexRender,

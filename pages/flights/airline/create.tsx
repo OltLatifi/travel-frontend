@@ -13,34 +13,30 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import airportService from "@/services/airportService"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import airlineService from "@/services/airlineService"
 import router from "next/router"
 import { withAuthGuard } from "@/hoc/guard"
 
 const formSchema = z.object({
-    code: z.string().min(3).max(4),
+    IATA_code: z.string().max(3),
     name: z.string().min(2).max(50),
-    city: z.string().min(2).max(50),
-    country: z.string().min(2).max(50),
 })
 
-function AirportForm() {
+function AirlineForm() {
     const queryClient = useQueryClient();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            code: "",
+            IATA_code: "",
             name: "",
-            city: "",
-            country: "",
         },
     })
 
     const mutation = useMutation({
-        mutationFn: airportService.createAirport,
+        mutationFn: airlineService.createAirline,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["airports"] });
+            queryClient.invalidateQueries({ queryKey: ["airline"] });
             router.push("list")
         },
     })
@@ -55,12 +51,12 @@ function AirportForm() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FormField
                     control={form.control}
-                    name="code"
+                    name="IATA_code"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Code</FormLabel>
+                        <FormLabel>IATA Code</FormLabel>
                         <FormControl>
-                            <Input placeholder="PRN" {...field} />
+                            <Input {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -73,33 +69,7 @@ function AirportForm() {
                         <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                            <Input placeholder="Prishtina International Airport"  {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Prishtina"  {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Kosove"  {...field} />
+                            <Input  {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -112,4 +82,4 @@ function AirportForm() {
     )
 }
 
-export default withAuthGuard(AirportForm, "Staff")
+export default withAuthGuard(AirlineForm, "Staff")

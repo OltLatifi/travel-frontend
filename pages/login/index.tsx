@@ -43,6 +43,7 @@ export default function LoginForm() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         mutation.mutate(values);
+        router.push("/")
     }
 
     return (

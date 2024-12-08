@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import airportService from "@/services/airportService";
+import flightService from "@/services/flightService";
 import { withAuthGuard } from "@/hoc/guard";
 import {
     Dialog,
@@ -16,24 +16,32 @@ import { Button } from "@/components/ui/button";
   
 
 
-function AirportsForm() {
+function FlightForm() {
 
     const columns = [
       {
-        header: "Code",
-        accessorKey: "code",
+        header: "Airline",
+        accessorKey: "airline",
       },
       {
-        header: "Name",
-        accessorKey: "name",
+        header: "Flight Number",
+        accessorKey: "flight_number",
       },
       {
-        header: "City",
-        accessorKey: "city",
+        header: "Departure Airport",
+        accessorKey: "departure_airport",
       },
       {
-        header: "Country",
-        accessorKey: "country",
+        header: "Arrival Airport",
+        accessorKey: "arrival_airport",
+      },
+      {
+        header: "Departure Time",
+        accessorKey: "departure_time",
+      },
+      {
+        header: "Arrival Time",
+        accessorKey: "arrival_time",
       },
       {
         header: "Action",
@@ -51,10 +59,10 @@ function AirportsForm() {
                     <DialogHeader>
                     <DialogTitle>Are you absolutely sure?</DialogTitle>
                     <DialogDescription>
-                        This action cannot be undone. This will permanently delete this airport.
+                        This action cannot be undone. This will permanently delete this flight.
                     </DialogDescription>
                     </DialogHeader>
-                    <Button onClick={() => deleteAirport(row?.original?.id)}>Delete</Button>
+                    <Button onClick={() => deleteFlight(row?.original?.id)}>Delete</Button>
                 </DialogContent>
             </Dialog>
           </div>
@@ -62,18 +70,18 @@ function AirportsForm() {
       },
     ];
     const { data, isLoading, refetch } = useQuery({
-        queryKey: ["airports"],
-        queryFn: airportService.getAirports,
+        queryKey: ["flights"],
+        queryFn: flightService.getFlights,
         staleTime: 5 * 60 * 1000,
         retry: 2,
     });
 
-    function deleteAirport(id: string) {
+    function deleteFlight(id: string) {
         deleteMutation.mutate(id);
     }
     
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => airportService.deleteAirport(id),
+        mutationFn: (id: string) => flightService.deleteFlight(id),
         onSuccess: () => {
             refetch();
         },
@@ -84,8 +92,8 @@ function AirportsForm() {
         <div className="p-6">
         <Card className="p-4">
             <div className="flex justify-between px-2">
-                <h1 className="text-xl font-bold mb-4">Airports List</h1>
-                <Link href="/flights/airport/create">Add Airport</Link>
+                <h1 className="text-xl font-bold mb-4">Flight List</h1>
+                <Link href="/flights/flight/create">Add Flight</Link>
             </div>
             {!isLoading && <DataTable columns={columns} data={data} />}
         </Card>
@@ -93,4 +101,4 @@ function AirportsForm() {
     );
 }
 
-export default withAuthGuard(AirportsForm, "Staff");
+export default withAuthGuard(FlightForm, "Staff");
