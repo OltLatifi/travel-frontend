@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import userService from "@/services/userService";
 import { useEffect } from "react";
 import router from "next/router";
+import useUserStore from "@/stores/userStore";
 
 const formSchema = z.object({
     username: z.string().min(2).max(50),
@@ -24,6 +25,7 @@ const formSchema = z.object({
 
 export default function LoginForm() {
     const queryClient = useQueryClient();
+    const { setIsLoggedIn } = useUserStore()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -43,6 +45,7 @@ export default function LoginForm() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         mutation.mutate(values);
+        setIsLoggedIn(true)
         router.push("/")
     }
 
