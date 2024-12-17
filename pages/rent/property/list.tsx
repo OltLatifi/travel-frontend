@@ -85,7 +85,7 @@ function PropertyList() {
     });
 
     return (
-        <div className="p-6">
+        <div className="max-w-7xl mx-auto p-6 mt-8">
             <Card className="p-4">
                 <div className="flex justify-between px-2">
                     <h1 className="text-xl font-bold mb-4">Property List</h1>

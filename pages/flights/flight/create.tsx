@@ -71,6 +71,7 @@ function AirportForm() {
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        values.price_per_ticket = values.price_per_ticket * 100
         mutation.mutate(values)
     }
 

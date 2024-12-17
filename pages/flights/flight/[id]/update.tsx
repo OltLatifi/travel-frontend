@@ -83,7 +83,7 @@ function UpdateForm() {
                 departure_time: flightData.departure_time,
                 arrival_time: flightData.arrival_time,
                 duration_minutes: flightData.duration_minutes,
-                price_per_ticket: flightData.price_per_ticket,
+                price_per_ticket: flightData.price_per_ticket / 100,
                 code: flightData.code,
                 name: flightData.name,
                 city: flightData.city,

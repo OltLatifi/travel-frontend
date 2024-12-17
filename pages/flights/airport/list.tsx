@@ -53,7 +53,7 @@ function AirportsForm() {
                     <DialogDescription>
                         This action cannot be undone. This will permanently delete this airport.
                     </DialogDescription>
-                    </DialogHeader>
+                    </DialogHeader>\
                     <Button onClick={() => deleteAirport(row?.original?.id)}>Delete</Button>
                 </DialogContent>
             </Dialog>
@@ -81,7 +81,7 @@ function AirportsForm() {
 
 
     return (
-        <div className="p-6">
+        <div className="max-w-7xl mx-auto my-8 p-6">
         <Card className="p-4">
             <div className="flex justify-between px-2">
                 <h1 className="text-xl font-bold mb-4">Airports List</h1>
