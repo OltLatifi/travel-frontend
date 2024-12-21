@@ -3,7 +3,12 @@ import { stripePromise } from "@/config/stripe"
 
 const propertyService = {
     createProperty: async (data: Object) => {
-        const request = await Axios.post("/properties/", data)
+        console.log(data)
+        const request = await Axios.post("/properties/", data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
         return request.data
     },
 
@@ -18,12 +23,16 @@ const propertyService = {
     },
 
     getPropertyById: async (id: string) => {
-        const request = await Axios.get("/properties/" + id)
+        const request = await Axios.get("/properties/" + id + "/")
         return request.data
     },
 
     updateProperty: async (id: string, data: Object) => {
-        const request = await Axios.put(`/properties/${id}/`, data)
+        const request = await Axios.patch(`/properties/${id}/`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
         return request.data
     },
 
@@ -75,6 +84,21 @@ const propertyService = {
 
     getPayments: async () => {
         const response = await Axios.get('/payments/properties');
+        return response.data;
+    },
+
+    makePropertyAvailable: async (id: string) => {
+        const response = await Axios.patch(`/properties/${id}/update-availability/`);
+        return response.data;
+    },
+
+    getNotifications: async () => {
+        const response = await Axios.get('/notifications/');
+        return response.data;
+    },
+
+    markNotificationAsRead: async (id: string) => {
+        const response = await Axios.patch(`/notifications/${id}/mark-as-read/`);
         return response.data;
     }
 }

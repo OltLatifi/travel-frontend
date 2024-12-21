@@ -27,6 +27,7 @@ const formSchema = z.object({
     price_per_night: z.number().min(1),
     max_guests: z.number().min(1),
     property_type: z.string().min(1),
+    images:  z.instanceof(FileList).optional()
 })
 
 function PropertyForm() {
@@ -44,10 +45,23 @@ function PropertyForm() {
     })
 
     const mutation = useMutation({
-        mutationFn: propertyService.createProperty,
+        mutationFn: (values: z.infer<typeof formSchema>) => {
+            const formData = new FormData();
+            Object.entries(values).forEach(([key, value]) => {
+                if (key === 'images' && value instanceof FileList) {
+                    Array.from(value).forEach(file => {
+                        formData.append('images', file);
+                    });
+                } else {
+                    formData.append(key, String(value));
+                }
+            });
+
+            return propertyService.createProperty(formData);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["properties"] });
-            router.push("list")
+            router.push("list");
         },
     })
 
@@ -147,6 +161,24 @@ function PropertyForm() {
                         <FormMessage />
                         </FormItem>
                     )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="images"
+                        render={({ field: { onChange, value, ...field } }) => (
+                            <FormItem>
+                                <FormLabel>Property Images</FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="file" 
+                                        multiple 
+                                        accept="image/*"
+                                        onChange={(e) => onChange(e.target.files)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
                     <Button type="submit">Submit</Button>
                 </form>

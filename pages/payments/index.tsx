@@ -22,7 +22,7 @@ export default function PaymentsHistory() {
         <div className="max-w-7xl mx-auto my-12 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-4xl font-bold">Payment History</h1>
+                    <h1 className="text-4xl font-bold">Booking History</h1>
                     <p className="text-gray-500 mt-2">Track your property earnings and bookings</p>
                 </div>
                 <div className="flex flex-col items-end">

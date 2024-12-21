@@ -12,40 +12,58 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import userService from "@/services/userService";
 import router from "next/router";
-import useUserStore from "@/stores/userStore";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
     username: z.string().min(2).max(50),
-    password: z.string(),
+    password: z.string().min(8).max(100),
+    confirmPassword: z.string(),
+    user_type: z.enum(["Traveler", "Host"]),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
-export default function LoginForm() {
-    const queryClient = useQueryClient();
-    const { setIsLoggedIn } = useUserStore()
+export default function SignUpForm() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: "",
             password: "",
+            confirmPassword: "",
+            user_type: "Traveler",
         },
     });
 
     const mutation = useMutation({
-        mutationFn: userService.logIn,
-        onSuccess: (response) => {
-            localStorage.setItem("accessToken", response.access);
-            queryClient.invalidateQueries({ queryKey: ["user", "me"] });
+        mutationFn: userService.signUp,
+        onSuccess: () => {
+            router.push("/login");
         },
+        onError: (error: any) => {
+            console.log(error)
+            if (error.response?.data?.username[0] === "A user with that username already exists.") {
+                form.setError('username', {
+                    type: 'manual',
+                    message: 'Username already exists'
+                });
+            }
+        }
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        mutation.mutate(values);
-        setIsLoggedIn(true)
-        router.push("/")
+        const { confirmPassword, ...signUpData } = values;
+        mutation.mutate(signUpData);
     }
 
     return (
@@ -53,10 +71,10 @@ export default function LoginForm() {
             <Card className="max-w-md w-full space-y-8 p-8 rounded-lg shadow-lg">
                 <div className="text-center">
                     <h2 className="mt-6 text-3xl font-bold text-gray-900">
-                        Welcome back
+                        Create an account
                     </h2>
                     <p className="mt-2 text-sm text-gray-600">
-                        Please sign in to your account
+                        Sign up to get started
                     </p>
                 </div>
 
@@ -96,15 +114,53 @@ export default function LoginForm() {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-gray-700">Confirm Password</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            {...field} 
+                                            type="password"
+                                            className="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" 
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="user_type"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="text-gray-700">User Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger className="rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+                                                <SelectValue placeholder="Select user type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Traveler">Traveler</SelectItem>
+                                            <SelectItem value="Host">Host</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <Button 
                             type="submit" 
                             className="w-full py-2 bg-primary hover:bg-primary/90 transition-colors"
                         >
-                            Sign in
+                            Sign up
                         </Button>
                     </form>
                 </Form>
             </Card>
         </div>
     );
-}
+} 

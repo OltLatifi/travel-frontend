@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import propertyService from "@/services/propertyService";
+import flightService from "@/services/flightService";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-    nights: z.coerce.number().min(1, "Must stay at least 1 night"),
+    seats: z.coerce.number().min(1, "Must book at least 1 seat"),
     customerName: z.string().min(2, "Name must be at least 2 characters"),
 });
 
@@ -27,9 +27,9 @@ import { stripePromise } from "@/config/stripe";
 import useUserStore from "@/stores/userStore";
 import { useEffect } from "react";
 
-function CheckoutForm({ propertyId, nights, customerName, amount }: {
-    propertyId: number;
-    nights: number;
+function CheckoutForm({ flightId, seats, customerName, amount }: {
+    flightId: number;
+    seats: number;
     customerName: string;
     amount: number;
 }) {
@@ -54,9 +54,9 @@ function CheckoutForm({ propertyId, nights, customerName, amount }: {
                 throw new Error(paymentMethodError.message);
             }
 
-            const intent = await propertyService.createBooking(
-                propertyId, 
-                nights, 
+            const intent = await flightService.createBooking(
+                flightId, 
+                seats, 
                 amount, 
                 customerName,
                 paymentMethod.id
@@ -103,7 +103,7 @@ function CheckoutForm({ propertyId, nights, customerName, amount }: {
     );
 }
 
-export default function Home() {
+export default function FlightBooking() {
     const router = useRouter();
     const userStore = useUserStore();
     const { id } = router.query;
@@ -115,12 +115,12 @@ export default function Home() {
     }, [userStore.isLoggedIn, router]);
 
     const {
-        data: property,
+        data: flight,
         isLoading,
         error
     } = useQuery({
-        queryKey: ["property", id],
-        queryFn: () => propertyService.getPropertyById(id as string),
+        queryKey: ["flight", id],
+        queryFn: () => flightService.getFlightById(id as string),
         enabled: !!id,
         staleTime: 5 * 60 * 1000,
         retry: 2,
@@ -129,68 +129,73 @@ export default function Home() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            nights: 1,
+            seats: 1,
             customerName: "",
         },
     });
 
-    const nights = form.watch("nights");
-    const totalPrice = property?.price_per_night ? 
-        isNaN(nights) ? 0 : property.price_per_night * nights 
+    const seats = form.watch("seats");
+    let totalPrice = flight?.price_per_ticket ? 
+        isNaN(seats) ? 0 : flight.price_per_ticket * seats 
         : 0;
+
+    totalPrice = totalPrice/100;
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         // The form submission is now handled by the CheckoutForm component
     }
 
-    if (isLoading) return <p>Loading property...</p>;
-    if (error) return <p>Error loading property</p>;
-    if (!property) return <p>No property found</p>;
+    if (isLoading) return <p>Loading flight...</p>;
+    if (error) return <p>Error loading flight</p>;
+    if (!flight) return <p>No flight found</p>;
 
     return (
         <Elements stripe={stripePromise}>
             <div className="w-[96%] max-w-7xl mx-auto p-6 mt-8">
                 <Card className="p-8 shadow-lg">
                     <div className="space-y-6">
-                        {/* Property Header */}
+                        {/* Flight Header */}
                         <div className="border-b pb-6">
-                            <h1 className="text-3xl font-bold mb-2">{property.name}</h1>
-
+                            <h1 className="text-3xl font-bold mb-2">
+                                Flight {flight.flight_number}
+                            </h1>
                             <p className="text-gray-600 text-lg leading-relaxed">
-                                {property.description}
+                                {flight.airline.name}
                             </p>
                         </div>
 
-                        {/* Property Details */}
+                        {/* Flight Details */}
                         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                            {/* Left Column - Property Info */}
+                            {/* Left Column - Flight Info */}
                             <div className="flex-1 space-y-4">
                                 <div className="bg-gray-50 p-4 rounded-lg">
-                                    <h3 className="text-lg font-semibold mb-2">Property Details</h3>
+                                    <h3 className="text-lg font-semibold mb-2">Flight Details</h3>
                                     <ul className="space-y-2">
                                         <li className="flex items-center gap-2">
-                                            <span className="text-gray-600">Price per night:</span>
-                                            <span className="font-bold text-lg">
-                                                ${property.price_per_night}
+                                            <span className="text-gray-600">From:</span>
+                                            <span className="font-bold">
+                                                {flight.departure_airport.city} ({flight.departure_airport.code})
                                             </span>
                                         </li>
-                                        {/* Add more property details here if available */}
+                                        <li className="flex items-center gap-2">
+                                            <span className="text-gray-600">To:</span>
+                                            <span className="font-bold">
+                                                {flight.arrival_airport.city} ({flight.arrival_airport.code})
+                                            </span>
+                                        </li>
+                                        <li className="flex items-center gap-2">
+                                            <span className="text-gray-600">Departure:</span>
+                                            <span className="font-bold">
+                                                {new Date(flight.departure_time).toLocaleString()}
+                                            </span>
+                                        </li>
+                                        <li className="flex items-center gap-2">
+                                            <span className="text-gray-600">Price per seat:</span>
+                                            <span className="font-bold text-lg">
+                                                ${flight.price_per_ticket/100}
+                                            </span>
+                                        </li>
                                     </ul>
-                                    <div className="my-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {property.images?.map((imagePath: string, index: number) => (
-                                                <div key={index} className="relative aspect-[4/3]">
-                                                    <a href={`http://localhost:8000${imagePath}`} target="_blank" rel="noopener noreferrer">
-                                                        <img
-                                                            src={`http://localhost:8000${imagePath}`}
-                                                            alt={`${property.name} - Image ${index + 1}`}
-                                                            className="object-cover max-w-full h-auto rounded-lg"
-                                                        />
-                                                    </a>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>     
                                 </div>
                             </div>
 
@@ -198,7 +203,7 @@ export default function Home() {
                             <div className="w-full md:w-1/2 bg-gray-50 p-6 rounded-lg">
                                 <Form {...form}>
                                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                        <h3 className="text-xl font-semibold mb-4">Book Your Stay</h3>
+                                        <h3 className="text-xl font-semibold mb-4">Book Your Flight</h3>
                                         
                                         <FormField
                                             control={form.control}
@@ -219,11 +224,11 @@ export default function Home() {
 
                                         <FormField
                                             control={form.control}
-                                            name="nights"
+                                            name="seats"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel className="text-gray-700">
-                                                        Number of Nights
+                                                        Number of Seats
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input 
@@ -244,12 +249,12 @@ export default function Home() {
 
                                         <div className="bg-white p-4 rounded-md">
                                             <div className="flex justify-between items-center mb-2">
-                                                <span className="text-gray-600">Price per night</span>
-                                                <span>${property.price_per_night}</span>
+                                                <span className="text-gray-600">Price per seat</span>
+                                                <span>${flight.price_per_ticket/100}</span>
                                             </div>
                                             <div className="flex justify-between items-center mb-2">
-                                                <span className="text-gray-600">Nights</span>
-                                                <span>{nights || 0}</span>
+                                                <span className="text-gray-600">Seats</span>
+                                                <span>{seats || 0}</span>
                                             </div>
                                             <div className="border-t pt-2 mt-2">
                                                 <div className="flex justify-between items-center">
@@ -261,8 +266,8 @@ export default function Home() {
 
                                         {/* Add CheckoutForm after the price summary */}
                                         <CheckoutForm 
-                                            propertyId={parseInt(id as string)}
-                                            nights={nights}
+                                            flightId={parseInt(id as string)}
+                                            seats={seats}
                                             customerName={form.getValues("customerName")}
                                             amount={totalPrice}
                                         />

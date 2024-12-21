@@ -21,7 +21,7 @@ function FlightForm() {
     const columns = [
       {
         header: "Airline",
-        accessorKey: "airline",
+        accessorKey: "airline.name",
       },
       {
         header: "Flight Number",
@@ -29,11 +29,11 @@ function FlightForm() {
       },
       {
         header: "Departure Airport",
-        accessorKey: "departure_airport",
+        accessorKey: "departure_airport.name",
       },
       {
         header: "Arrival Airport",
-        accessorKey: "arrival_airport",
+        accessorKey: "arrival_airport.name",
       },
       {
         header: "Departure Time",

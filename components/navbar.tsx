@@ -78,9 +78,20 @@ function Navbar() {
                     
                     <div className="flex flex-col gap-4 mt-12">
                         {isLoggedIn && (
-                            <Link href="/payments" className="text-gray-600 hover:text-gray-900 px-1">
-                                Payment History
-                            </Link>
+                            <>
+                                <Link href="/payments" className="text-gray-600 hover:text-gray-900 px-1">
+                                    Booking History
+                                </Link>
+                                <Link 
+                                    href="/home/flights/ticket" 
+                                    className="text-gray-600 hover:text-gray-900 transition-colors px-1"
+                                >
+                                    Flight Tickets
+                                </Link>
+                                <Link href="/home/flights/list" className="text-gray-600 hover:text-gray-900 px-1">
+                                    Book a flight
+                                </Link>
+                            </>
                         )}
                         {userData.user_type === "Staff" && (
                             <>
@@ -141,12 +152,26 @@ function Navbar() {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-6">
                         {isLoggedIn && (
-                            <Link 
-                                href="/payments" 
-                                className="text-gray-600 hover:text-gray-900 transition-colors"
-                            >
-                                Payment History
-                            </Link>
+                            <>
+                                <Link 
+                                    href="/payments" 
+                                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                                >
+                                    Booking History
+                                </Link>
+                                <Link 
+                                    href="/home/flights/ticket" 
+                                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                                >
+                                    Flight Tickets
+                                </Link>
+                                <Link 
+                                    href="/home/flights/list" 
+                                    className="text-gray-600 hover:text-gray-900 transition-colors"
+                                >
+                                    Book a flight
+                                </Link>
+                            </>
                         )}
                         {renderNavItems()}
                         {renderButton()}
