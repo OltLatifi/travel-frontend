@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import userService from "@/services/userService";
 import router from "next/router";
 import useUserStore from "@/stores/userStore";
+import Link from "next/link";
 
 const formSchema = z.object({
     username: z.string().min(2).max(50),
@@ -102,6 +103,14 @@ export default function LoginForm() {
                         >
                             Sign in
                         </Button>
+                        <div className="flex justify-center">
+                            <p className="text-sm text-gray-600">
+                                Don't have an account?
+                            </p>
+                            <Link href="/register" className="ml-2 text-sm text-primary hover:text-primary/90 transition-colors">
+                                Register here
+                            </Link>
+                        </div>
                     </form>
                 </Form>
             </Card>
