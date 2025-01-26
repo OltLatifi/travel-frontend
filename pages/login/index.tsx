@@ -44,9 +44,15 @@ export default function LoginForm() {
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        mutation.mutate(values);
-        setIsLoggedIn(true)
-        router.push("/")
+        mutation.mutate(values, {
+            onSuccess: () => {
+                setIsLoggedIn(true)
+                router.push("/")
+            },
+            onError: (error) => {
+                form.setError("password", { message: "Invalid username or password" });
+            }
+        });
     }
 
     return (
