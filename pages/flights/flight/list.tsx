@@ -71,7 +71,7 @@ function FlightForm() {
     ];
     const { data, isLoading, refetch } = useQuery({
         queryKey: ["flights"],
-        queryFn: flightService.getFlights,
+        queryFn: () => flightService.getAllFlights(),
         staleTime: 5 * 60 * 1000,
         retry: 2,
     });

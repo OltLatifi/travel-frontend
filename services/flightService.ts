@@ -12,13 +12,13 @@ const flightsService = {
         return request.data
     },
 
-    getAllFlights: async (page: number) => {
-        const request = await Axios.get("/flights/all/?page=" + page)
+    getAllFlights: async () => {
+        const request = await Axios.get("/flights/all/")
         return request.data
     },
 
     getFlightById: async (id: string) => {
-        const request = await Axios.get("/flights/" + id)
+        const request = await Axios.get("/flights/" + id + "/")
         return request.data
     },
 

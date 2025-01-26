@@ -33,7 +33,7 @@ interface Flight {
 function FlightList() {
     const { data, isLoading } = useQuery({
         queryKey: ["flights"],
-        queryFn: flightService.getFlights,
+        queryFn: flightService.getAllFlights,
         staleTime: 5 * 60 * 1000,
         retry: 2,
     });

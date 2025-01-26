@@ -50,6 +50,7 @@ export default function LoginForm() {
                 router.push("/")
             },
             onError: (error) => {
+                console.log(error)
                 form.setError("password", { message: "Invalid username or password" });
             }
         });
