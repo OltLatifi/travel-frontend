@@ -12,7 +12,7 @@ const airportService = {
     },
 
     getAirportById: async (id: string) => {
-        const request = await Axios.get("/flights/airport/" + id)
+        const request = await Axios.get("/flights/airport/" + id + "/")
         return request.data
     },
 
